@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class AuthService
 {
@@ -24,24 +23,13 @@ class AuthService
 
     public function login(array $credentials, bool $remember = false): bool
     {
-        $user = User::where('email', $credentials['email'])->first();
-
-        if (! $user) {
+        if (! Auth::attempt($credentials, $remember)) {
             return false;
         }
 
-        if (! Hash::check($credentials['password'], $user->password)) {
-            return false;
-        }
-
-        if ($remember) {
-            $user->setRememberToken(Str::random(60));
-            $user->save();
-            Auth::login($user, true);
-        } else {
-            $user->remember_token = null;
-            $user->save();
-            Auth::login($user);
+        if (! $remember) {
+            Auth::user()->remember_token = null;
+            Auth::user()->save();
         }
 
         return true;
