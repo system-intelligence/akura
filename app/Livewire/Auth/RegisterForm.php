@@ -31,7 +31,9 @@ class RegisterForm extends Component
             'password' => $this->password,
         ]);
 
-        return redirect()->route('dashboard');
+        session()->flash('success', 'Registration successful! Please check your email to verify your account.');
+
+        return redirect()->route('verification.notice');
     }
 
     public function render()

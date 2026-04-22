@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,16 +17,23 @@ class AuthService
             'password' => Hash::make($data['password']),
         ]);
 
-        Auth::login($user);
+        $user->notify(new VerifyEmailNotification);
+
+        session()->put('pending_verification_email', $user->email);
+        Auth::logout();
 
         return $user;
     }
 
     public function login(array $credentials, bool $remember = false): bool
     {
-        if (! Auth::attempt($credentials, $remember)) {
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             return false;
         }
+
+        Auth::login($user, $remember);
 
         if (! $remember) {
             Auth::user()->remember_token = null;

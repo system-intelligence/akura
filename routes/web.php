@@ -3,7 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Livewire\Auth\LoginForm;
 use App\Livewire\Auth\RegisterForm;
+use App\Livewire\Auth\VerifyEmailNotice;
 use App\Livewire\Dashboard;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +24,30 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
+    $user = User::findOrFail($id);
+
+    if (! hash_equals(sha1($user->getEmailForVerification()), $hash)) {
+        abort(403);
+    }
+
+    if ($user->hasVerifiedEmail()) {
+        return redirect()->route('login')->with('status', 'Email already verified!');
+    }
+
+    $user->email_verified_at = now();
+    $user->save();
+
+    session()->forget('pending_verification_email');
+
+    return redirect()->route('login')->with('status', 'Email verified! You can now login.');
+})->middleware(['signed'])->name('verification.verify');
+
+Route::get('/email/verify', VerifyEmailNotice::class)->name('verification.notice');
+
+Route::get('/verification-required', VerifyEmailNotice::class)->name('verification.required');

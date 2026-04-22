@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\User;
 use App\Services\AuthService;
 use Livewire\Component;
 
@@ -32,7 +33,20 @@ class LoginForm extends Component
     {
         $this->validate();
 
-        logger('Login attempt - remember value:', ['remember' => $this->remember]);
+        $user = User::where('email', $this->email)->first();
+
+        if (! $user) {
+            $this->addError('email', 'Invalid credentials.');
+
+            return;
+        }
+
+        if ($user->email_verified_at === null) {
+            session()->put('pending_verification_email', $user->email);
+            $this->addError('email', 'Please verify your email first.');
+
+            return;
+        }
 
         if ($authService->login([
             'email' => $this->email,

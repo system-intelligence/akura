@@ -40,7 +40,7 @@
 
     <!-- Main Content -->
     <main>
-        <div class="max-w-md mx-auto px-4 py-10">
+        <div class="max-w-2xl mx-auto px-4 py-10">
             @yield('content')
             {{ $slot ?? '' }}
         </div>

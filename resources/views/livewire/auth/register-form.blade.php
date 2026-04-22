@@ -33,8 +33,9 @@
                 placeholder="Confirm your password">
         </div>
 
-        <x-button type="submit" variant="primary" class="w-full py-3">
-            Create Account
+        <x-button type="submit" variant="primary" class="w-full py-3" wire:loading.class="opacity-50" wire:loading.attr="disabled">
+            <span wire:loading.remove wire:target="register">Create Account</span>
+            <span wire:loading wire:target="register">Creating Account...</span>
         </x-button>
         
         <p class="text-center text-gray-500 text-sm">
