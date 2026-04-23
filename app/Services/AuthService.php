@@ -55,4 +55,11 @@ class AuthService
         session()->invalidate();
         session()->regenerateToken();
     }
+
+    public function resendVerification(User $user): void
+    {
+        if (! $user->hasVerifiedEmail()) {
+            $user->notify(new VerifyEmailNotification);
+        }
+    }
 }

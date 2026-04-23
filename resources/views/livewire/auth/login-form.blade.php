@@ -1,4 +1,16 @@
 <x-card title="Welcome back">
+    @if (session('status'))
+        <div class="mb-4 p-3 rounded-lg bg-green-500/20 text-green-400 text-sm">
+            {{ session('status') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="mb-4 p-3 rounded-lg bg-red-500/20 text-red-400 text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <form wire:submit.prevent="login" class="space-y-5">
         @csrf
         
@@ -7,7 +19,21 @@
             <input type="email" wire:model="email" 
                 class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-500 transition"
                 placeholder="Enter your email">
-            @error('email') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
+            @error('email') 
+                <div class="text-red-400 text-sm mt-1">
+                    {{ $message }}
+                    @if ($showResendLink && !$emailNotFound)
+                        <button type="button" wire:click="resendVerification" class="ml-2 text-green-400 hover:text-green-300 underline">
+                            Resend verification email
+                        </button>
+                    @endif
+                    @if ($emailNotFound)
+                        <a href="{{ route('register') }}" class="ml-2 text-green-400 hover:text-green-300 underline">
+                            Create an account
+                        </a>
+                    @endif
+                </div>
+            @enderror
         </div>
 
         <div>

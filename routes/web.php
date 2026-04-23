@@ -40,13 +40,18 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
         return redirect()->route('login')->with('status', 'Email already verified!');
     }
 
+    if (! request()->hasValidSignature()) {
+        return redirect()->route('verification.notice')
+            ->with('error', 'Your verification link has expired. Click below to request a new one.');
+    }
+
     $user->email_verified_at = now();
     $user->save();
 
     session()->forget('pending_verification_email');
 
     return redirect()->route('login')->with('status', 'Email verified! You can now login.');
-})->middleware(['signed'])->name('verification.verify');
+})->name('verification.verify');
 
 Route::get('/email/verify', VerifyEmailNotice::class)->name('verification.notice');
 

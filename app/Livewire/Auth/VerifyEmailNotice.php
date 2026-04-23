@@ -3,7 +3,7 @@
 namespace App\Livewire\Auth;
 
 use App\Models\User;
-use App\Notifications\VerifyEmailNotification;
+use App\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -16,7 +16,7 @@ class VerifyEmailNotice extends Component
         $this->user = Auth::user();
     }
 
-    public function resend()
+    public function resend(AuthService $authService)
     {
         if (! $this->user) {
             $email = session('pending_verification_email');
@@ -29,7 +29,7 @@ class VerifyEmailNotice extends Component
             return redirect()->route('login');
         }
 
-        $user->notify(new VerifyEmailNotification);
+        $authService->resendVerification($user);
 
         session()->flash('status', 'Verification link sent!');
     }

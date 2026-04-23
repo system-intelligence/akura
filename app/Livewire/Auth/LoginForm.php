@@ -16,6 +16,18 @@ class LoginForm extends Component
 
     public $rememberDebug = 'unchecked';
 
+    public $showResendLink = false;
+
+    public $resendEmail = '';
+
+    public $emailNotFound = false;
+
+    protected $messages = [
+        'email.required' => 'Please enter your email address.',
+        'email.email' => 'Please enter a valid email address.',
+        'password.required' => 'Please enter your password.',
+    ];
+
     protected function rules()
     {
         return [
@@ -29,6 +41,13 @@ class LoginForm extends Component
         $this->rememberDebug = $this->remember ? 'checked' : 'unchecked';
     }
 
+    public function updatedEmail()
+    {
+        $this->emailNotFound = false;
+        $this->showResendLink = false;
+        $this->resetErrorBag('email');
+    }
+
     public function login(AuthService $authService)
     {
         $this->validate();
@@ -36,7 +55,8 @@ class LoginForm extends Component
         $user = User::where('email', $this->email)->first();
 
         if (! $user) {
-            $this->addError('email', 'Invalid credentials.');
+            $this->emailNotFound = true;
+            $this->addError('email', 'This email has not been used to create an account yet.');
 
             return;
         }
@@ -44,6 +64,9 @@ class LoginForm extends Component
         if ($user->email_verified_at === null) {
             session()->put('pending_verification_email', $user->email);
             $this->addError('email', 'Please verify your email first.');
+            $this->showResendLink = true;
+            $this->resendEmail = $user->email;
+            $this->emailNotFound = false;
 
             return;
         }
@@ -58,6 +81,33 @@ class LoginForm extends Component
         }
 
         $this->addError('email', 'Invalid credentials.');
+    }
+
+    public function resendVerification(AuthService $authService)
+    {
+        $this->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $this->email)->first();
+
+        if (! $user) {
+            $this->emailNotFound = true;
+            $this->addError('email', 'This email has not been used to create an account yet.');
+            $this->showResendLink = false;
+
+            return;
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            $this->showResendLink = false;
+            $this->addError('email', 'This email is already verified. You can log in.');
+
+            return;
+        }
+
+        $authService->resendVerification($user);
+        session()->flash('status', 'Verification email resent! Please check your inbox.');
+        $this->showResendLink = false;
+        $this->emailNotFound = false;
     }
 
     public function render()
