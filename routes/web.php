@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\LoginForm;
 use App\Livewire\Auth\RegisterForm;
+use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Auth\VerifyEmailNotice;
 use App\Livewire\Dashboard;
 use App\Models\User;
@@ -22,6 +24,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', RegisterForm::class)->name('register');
     Route::get('/login', LoginForm::class)->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Password Reset Routes
+    Route::get('/forgot-password', ForgotPassword::class)->name('password.request');
+    Route::post('/forgot-password', ForgotPassword::class)->name('password.email');
+    Route::get('/reset-password/{token}', ResetPassword::class)->name('password.reset');
+    Route::post('/reset-password', ResetPassword::class)->name('password.update');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -1,62 +1,67 @@
 <x-card title="Welcome back">
+    {{-- Flash Messages --}}
     @if (session('status'))
-        <div class="mb-4 p-3 rounded-lg bg-green-500/20 text-green-400 text-sm">
-            {{ session('status') }}
-        </div>
+        <x-alert type="success" :message="session('status')" class="mb-4" />
     @endif
 
     @if (session('error'))
-        <div class="mb-4 p-3 rounded-lg bg-red-500/20 text-red-400 text-sm">
-            {{ session('error') }}
-        </div>
+        <x-alert type="error" :message="session('error')" class="mb-4" />
     @endif
 
     <form wire:submit.prevent="login" class="space-y-5">
         @csrf
-        
-        <div>
-            <label class="block text-sm font-medium text-gray-400 mb-1">Email</label>
-            <input type="email" wire:model="email" 
-                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-500 transition"
-                placeholder="Enter your email">
-            @error('email') 
-                <div class="text-red-400 text-sm mt-1">
-                    {{ $message }}
-                    @if ($showResendLink && !$emailNotFound)
-                        <button type="button" wire:click="resendVerification" class="ml-2 text-green-400 hover:text-green-300 underline">
-                            Resend verification email
-                        </button>
-                    @endif
-                    @if ($emailNotFound)
-                        <a href="{{ route('register') }}" class="ml-2 text-green-400 hover:text-green-300 underline">
-                            Create an account
-                        </a>
-                    @endif
-                </div>
-            @enderror
-        </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-400 mb-1">Password</label>
-            <input type="password" wire:model="password" 
-                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-500 transition"
-                placeholder="Enter your password">
-            @error('password') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
-        </div>
+        {{-- Email Field --}}
+        <x-input 
+            name="email" 
+            type="email"
+            label="Email Address"
+            placeholder="you@example.com"
+            model="email"
+        />
 
-        <div class="flex items-center">
-            <input type="checkbox" wire:model="remember" wire:change="$refresh" class="rounded border-gray-600 bg-gray-800 text-green-500 focus:ring-green-500">
-            <label class="ml-2 text-sm text-gray-400">Remember me</label>
-            <span class="ml-2 text-xs text-gray-500">(debug: {{ $remember ? 'checked' : 'unchecked' }})</span>
-        </div>
+        {{-- Password Field --}}
+        <x-input 
+            name="password" 
+            type="password"
+            label="Password"
+            placeholder="Enter your password"
+            model="password"
+        />
 
-        <x-button type="submit" variant="primary" class="w-full py-3">
-            Sign In
+        {{-- Remember Me --}}
+        <x-checkbox 
+            name="remember"
+            label="Remember me"
+            model="remember"
+        />
+
+        {{-- Submit Button --}}
+        <x-button type="submit" 
+            variant="primary" 
+            class="w-full py-3 text-base font-semibold shadow-lg shadow-green-500/25"
+            wire:loading.attr="disabled" 
+            wire:target="login"
+            wire:loading.class="opacity-50 cursor-not-allowed">
+            <span wire:loading.remove wire:target="login">Sign In</span>
+            <span wire:loading wire:target="login">Signing in...</span>
         </x-button>
-        
-        <p class="text-center text-gray-500 text-sm">
-            Don't have an account? 
-            <a href="{{ route('register') }}" class="text-green-400 hover:text-green-300">Register</a>
-        </p>
+
+        {{-- Forgot Password Link --}}
+        <div class="text-center pt-2">
+            <a href="{{ route('password.request') }}" class="text-sm text-gray-400 hover:text-green-400 font-medium transition">
+                Forgot your password?
+            </a>
+        </div>
+
+        {{-- Register Link --}}
+        <div class="text-center pt-2 border-t border-gray-700/50">
+            <p class="text-sm text-gray-400">
+                Don't have an account? 
+                <a href="{{ route('register') }}" class="text-green-400 hover:text-green-300 font-semibold transition">
+                    Create one
+                </a>
+            </p>
+        </div>
     </form>
 </x-card>

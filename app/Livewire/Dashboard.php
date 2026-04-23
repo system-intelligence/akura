@@ -9,6 +9,8 @@ class Dashboard extends Component
 {
     public $rememberStatus = 'Inactive';
 
+    protected $layout = 'layouts.app';
+
     public function mount()
     {
         $this->loadRememberStatus();

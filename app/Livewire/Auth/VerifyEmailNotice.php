@@ -5,11 +5,15 @@ namespace App\Livewire\Auth;
 use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+#[Layout('layouts.auth')]
 class VerifyEmailNotice extends Component
 {
     public $user;
+
+    public $isLoading = false;
 
     public function mount()
     {
@@ -18,6 +22,8 @@ class VerifyEmailNotice extends Component
 
     public function resend(AuthService $authService)
     {
+        $this->isLoading = true;
+
         if (! $this->user) {
             $email = session('pending_verification_email');
             $user = User::where('email', $email)->first();
@@ -32,6 +38,7 @@ class VerifyEmailNotice extends Component
         $authService->resendVerification($user);
 
         session()->flash('status', 'Verification link sent!');
+        $this->isLoading = false;
     }
 
     public function render()

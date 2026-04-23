@@ -4,8 +4,10 @@ namespace App\Livewire\Auth;
 
 use App\Models\User;
 use App\Services\AuthService;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+#[Layout('layouts.auth')]
 class LoginForm extends Component
 {
     public $email = '';
@@ -21,6 +23,8 @@ class LoginForm extends Component
     public $resendEmail = '';
 
     public $emailNotFound = false;
+
+    public $isLoading = false;
 
     protected $messages = [
         'email.required' => 'Please enter your email address.',
@@ -50,6 +54,7 @@ class LoginForm extends Component
 
     public function login(AuthService $authService)
     {
+        $this->isLoading = true;
         $this->validate();
 
         $user = User::where('email', $this->email)->first();
@@ -57,6 +62,7 @@ class LoginForm extends Component
         if (! $user) {
             $this->emailNotFound = true;
             $this->addError('email', 'This email has not been used to create an account yet.');
+            $this->isLoading = false;
 
             return;
         }
@@ -67,6 +73,7 @@ class LoginForm extends Component
             $this->showResendLink = true;
             $this->resendEmail = $user->email;
             $this->emailNotFound = false;
+            $this->isLoading = false;
 
             return;
         }
@@ -76,15 +83,18 @@ class LoginForm extends Component
             'password' => $this->password,
         ], $this->remember)) {
             session()->regenerate();
+            $this->isLoading = false;
 
             return redirect()->route('dashboard');
         }
 
         $this->addError('email', 'Invalid credentials.');
+        $this->isLoading = false;
     }
 
     public function resendVerification(AuthService $authService)
     {
+        $this->isLoading = true;
         $this->validate(['email' => 'required|email']);
 
         $user = User::where('email', $this->email)->first();
@@ -93,6 +103,7 @@ class LoginForm extends Component
             $this->emailNotFound = true;
             $this->addError('email', 'This email has not been used to create an account yet.');
             $this->showResendLink = false;
+            $this->isLoading = false;
 
             return;
         }
@@ -100,6 +111,7 @@ class LoginForm extends Component
         if ($user->hasVerifiedEmail()) {
             $this->showResendLink = false;
             $this->addError('email', 'This email is already verified. You can log in.');
+            $this->isLoading = false;
 
             return;
         }
@@ -108,6 +120,7 @@ class LoginForm extends Component
         session()->flash('status', 'Verification email resent! Please check your inbox.');
         $this->showResendLink = false;
         $this->emailNotFound = false;
+        $this->isLoading = false;
     }
 
     public function render()

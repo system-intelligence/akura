@@ -1,46 +1,67 @@
 <x-card title="Create account">
+    {{-- Success Flash Message --}}
+    @if (session('success'))
+        <x-alert type="success" :message="session('success')" class="mb-4" />
+    @endif
+
     <form wire:submit.prevent="register" class="space-y-5">
         @csrf
-        
-        <div>
-            <label class="block text-sm font-medium text-gray-400 mb-1">Name</label>
-            <input type="text" wire:model="name" 
-                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-500 transition"
-                placeholder="Enter your name">
-            @error('name') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
-        </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-400 mb-1">Email</label>
-            <input type="email" wire:model="email" 
-                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-500 transition"
-                placeholder="Enter your email">
-            @error('email') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
-        </div>
+        {{-- Name Field --}}
+        <x-input 
+            name="name" 
+            type="text"
+            label="Full Name"
+            placeholder="John Doe"
+            model="name"
+        />
 
-        <div>
-            <label class="block text-sm font-medium text-gray-400 mb-1">Password</label>
-            <input type="password" wire:model="password" 
-                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-500 transition"
-                placeholder="Min 8 characters">
-            @error('password') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
-        </div>
+        {{-- Email Field --}}
+        <x-input 
+            name="email" 
+            type="email"
+            label="Email Address"
+            placeholder="you@example.com"
+            model="email"
+        />
 
-        <div>
-            <label class="block text-sm font-medium text-gray-400 mb-1">Confirm Password</label>
-            <input type="password" wire:model="password_confirmation" 
-                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-1 focus:ring-green-500 text-white placeholder-gray-500 transition"
-                placeholder="Confirm your password">
-        </div>
+        {{-- Password Field --}}
+        <x-input 
+            name="password" 
+            type="password"
+            label="Password"
+            placeholder="Min. 8 characters"
+            model="password"
+        />
 
-        <x-button type="submit" variant="primary" class="w-full py-3" wire:loading.class="opacity-50" wire:loading.attr="disabled">
+        {{-- Confirm Password Field --}}
+        <x-input 
+            name="password_confirmation" 
+            type="password"
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            model="password_confirmation"
+        />
+
+        {{-- Submit Button --}}
+        <x-button type="submit" 
+            variant="primary" 
+            class="w-full py-3 text-base font-semibold shadow-lg shadow-green-500/25"
+            wire:loading.attr="disabled" 
+            wire:target="register"
+            wire:loading.class="opacity-50 cursor-not-allowed">
             <span wire:loading.remove wire:target="register">Create Account</span>
-            <span wire:loading wire:target="register">Creating Account...</span>
+            <span wire:loading wire:target="register">Creating account...</span>
         </x-button>
-        
-        <p class="text-center text-gray-500 text-sm">
-            Already have an account? 
-            <a href="{{ route('login') }}" class="text-green-400 hover:text-green-300">Login</a>
-        </p>
+
+        {{-- Login Link --}}
+        <div class="text-center pt-3 border-t border-gray-700/50">
+            <p class="text-sm text-gray-400">
+                Already have an account? 
+                <a href="{{ route('login') }}" class="text-green-400 hover:text-green-300 font-semibold transition">
+                    Sign in
+                </a>
+            </p>
+        </div>
     </form>
 </x-card>

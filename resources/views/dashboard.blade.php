@@ -12,7 +12,7 @@
                     <p class="text-sm text-gray-400">Logged in to {{ config('app.name', 'Akura') }}</p>
                 </div>
             </div>
-            
+
             <div class="flex items-center gap-2">
                 <span class="text-sm text-gray-400">Remember Me:</span>
                 <span class="px-3 py-1 rounded-full text-sm font-medium {{ $rememberStatus === 'Active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-800 text-gray-400 border border-gray-700' }}">
@@ -20,7 +20,5 @@
                 </span>
             </div>
         </div>
+        </div>
     </div>
-</div>
-
-    

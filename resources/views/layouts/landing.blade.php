@@ -7,9 +7,7 @@
     <meta name="description" content="{{ $description ?? 'Secure account management with email verification and password recovery' }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        /* Smooth scrolling */
         html { scroll-behavior: smooth; }
-        /* Gradient text enhancement */
         .gradient-text {
             background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #0d9488 100%);
             -webkit-background-clip: text;
@@ -49,7 +47,7 @@
         </div>
     </nav>
 
-    <!-- Main Content - NO CONTAINER RESTRICTIONS -->
+    <!-- Main Content - FULL WIDTH for landing -->
     <main>
         @yield('content')
         {{ $slot ?? '' }}

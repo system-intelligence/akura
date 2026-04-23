@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AuthService
 {
@@ -61,5 +64,47 @@ class AuthService
         if (! $user->hasVerifiedEmail()) {
             $user->notify(new VerifyEmailNotification);
         }
+    }
+
+    public function sendPasswordResetLink(string $email): bool
+    {
+        $user = User::where('email', $email)->first();
+
+        if (! $user) {
+            return false;
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            return false;
+        }
+
+        $token = Str::random(60);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $email],
+            [
+                'email' => $email,
+                'token' => Hash::make($token),
+                'created_at' => now(),
+            ]
+        );
+
+        $user->notify(new ResetPasswordNotification($token));
+
+        return true;
+    }
+
+    public function resetPassword(string $email, string $password): bool
+    {
+        $user = User::where('email', $email)->first();
+
+        if (! $user) {
+            return false;
+        }
+
+        $user->password = Hash::make($password);
+        $user->save();
+
+        return true;
     }
 }

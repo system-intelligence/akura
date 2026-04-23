@@ -3,8 +3,10 @@
 namespace App\Livewire\Auth;
 
 use App\Services\AuthService;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+#[Layout('layouts.auth')]
 class RegisterForm extends Component
 {
     public $name;
@@ -15,6 +17,8 @@ class RegisterForm extends Component
 
     public $password_confirmation;
 
+    public $isLoading = false;
+
     protected $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
@@ -23,6 +27,7 @@ class RegisterForm extends Component
 
     public function register(AuthService $authService)
     {
+        $this->isLoading = true;
         $this->validate();
 
         $authService->register([
